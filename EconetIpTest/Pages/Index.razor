@@ -1,0 +1,49 @@
+﻿@page "/"
+@inject HttpClient _httpClient
+
+<h1>Test</h1>
+@if (_isLoading)
+{
+    <p>...isLoading</p>
+}
+
+<input class="form-control mb-3" placeholder="full url" @bind="_url" />
+<button class="btn btn-primary mb-3" @onclick="SendRequest">Send Request</button>
+
+<p>@_httpRequestCode</p>
+
+<textarea rows="9" class="form-control">
+    @_result
+</textarea>
+
+@code{
+    string _url = "";
+    string _result = "";
+    string _httpRequestCode = "";
+    bool _isLoading = false;
+
+    async Task SetIsLoading(bool isLoading)
+    {
+        _isLoading = isLoading;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    async Task SendRequest()
+    {
+        await SetIsLoading(true);
+
+        try
+        {
+            var result = await _httpClient.GetAsync(_url);
+            _httpRequestCode = result.ReasonPhrase;
+            _result = await result.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _result = ex.Message;
+        }
+
+        await SetIsLoading(false);
+    }
+}
+
