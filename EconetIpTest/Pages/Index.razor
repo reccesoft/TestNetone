@@ -6,20 +6,35 @@
 {
     <p>...isLoading</p>
 }
+<div class="form-group">
+    <label>Url to send</label>
+    <input class="form-control mb-3" placeholder="full url" @bind="_url" />
+</div>
 
-<input class="form-control mb-3" placeholder="full url" @bind="_url" />
+<div class="form-group">
+    <label>Xml To Send</label>
+<textarea rows="9" class="form-control">
+@_xml
+</textarea>
+</div>
+
 <button class="btn btn-primary mb-3" @onclick="SendRequest">Send Request</button>
 
-<p>@_httpRequestCode</p>
+<hr />
+<p>Results</p>
 
+<p>Status Code: @_httpRequestCode</p>
+<p>Response Content: </p>
 <textarea rows="9" class="form-control">
     @_result
 </textarea>
 
 @code{
-    string _url = "";
+    string _url = "10.10.11.90/xmlrpc";
     string _result = "";
     string _httpRequestCode = "";
+    string _xml = @"<methodCall><methodName>account_balance_enquiry</methodName><params><param><value><string>TestUsername</string></value></param><param><value><string>Password</string></value></param><param><value><struct><member><name>MSISDN</name><value><string>27821231234</string></value></member><member><name>ProviderCode</name><value><int>100</int></value></member></struct></value></param></params></methodCall>";
+
     bool _isLoading = false;
 
     async Task SetIsLoading(bool isLoading)
@@ -34,9 +49,11 @@
 
         try
         {
-            var result = await _httpClient.GetAsync(_url);
-            _httpRequestCode = result.ReasonPhrase;
-            _result = await result.Content.ReadAsStringAsync();
+
+            var stringContent = new StringContent(_xml, System.Text.Encoding.UTF8, "application/xml");
+            var respone = await _httpClient.PostAsync(_url, stringContent);
+            _httpRequestCode = respone.ReasonPhrase;
+            _result = await respone.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
