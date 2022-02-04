@@ -2,6 +2,9 @@ namespace EconetIpTest.Data;
 
 public class WeatherForecast
 {
+    /// <summary>
+    /// Justs
+    /// </summary>
     public DateTime Date { get; set; }
 
     public int TemperatureC { get; set; }
